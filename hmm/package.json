@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "author": "Jessica Taylor <jessica.liu.taylor@gmail.com> (http://jessic.at/)",
+  "scripts": {"webppl": "node_modules/.bin/webppl"},
   "dependencies": {
     "webppl": "^0.9.15"
   }
