@@ -17,7 +17,7 @@ var noisyDeaths = function(actual, obs) {
 };
 
 var getStates = function(t, deathDat) {
-  if (t == 1) {
+  if (t == 0) {
     var states = [null, {i: 1, d: 0, r: 0}];
 
     noisyDeaths(states[1].d, deathDat[0]);
@@ -25,13 +25,13 @@ var getStates = function(t, deathDat) {
   } else {
     var states = getStates(t-1, deathDat);
     var states2 = [states, transition(states[1])];
-    noisyDeaths(states2[1].d, deathDat[t-1]);
+    noisyDeaths(states2[1].d, deathDat[t]);
     return states2;
   }
 };
 
 var sim = function(deathDat) {
-  var states = getStates(deathDat.length, deathDat);
+  var states = getStates(deathDat.length - 1, deathDat);
   return states[1];
 };
 
