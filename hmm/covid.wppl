@@ -1,0 +1,43 @@
+
+
+// A state is a vector of the form: {'i': number of infections, 'd': number of dead, 'r': number of recovered}
+
+var transition = function(state) {
+  // note: these are really binomials
+  let i = state.i == 0 ? 0 : sample(Poisson({mu: state.i * 0.2}));
+  var d1 = state.i == 0 ? 0 : sample(Poisson({mu: state.i * 0.0004}));
+  var d = d1 > state.i ? state.i : d1;
+  var r1 = state.i == 0 ? 0 : sample(Poisson({mu: state.i * 0.04}));
+  var r = r1 > state.i - d ? state.i - d : r1;
+  return {i: state.i + i - d - r, d: state.d + d, r: state.r + r};
+};
+
+var noisyDeaths = function(actual, obs) {
+  factor((actual - obs) * (actual - obs) * -1);
+};
+
+var getStates = function(t, deathDat) {
+  if (t == 1) {
+    var states = [null, {i: 1, d: 0, r: 0}];
+
+    noisyDeaths(states[1].d, deathDat[0]);
+    return states;
+  } else {
+    var states = getStates(t-1, deathDat);
+    var states2 = [states, transition(states[1])];
+    noisyDeaths(states2[1].d, deathDat[t-1]);
+    return states2;
+  }
+};
+
+var sim = function(deathDat) {
+  var states = getStates(deathDat.length, deathDat);
+  return states[1];
+};
+
+
+var deathData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 5, 6, 8, 12, 15, 18, 25];
+
+var dist = Infer({method: 'SMC'}, function() { return sim(deathData); });
+
+console.log(dist);
